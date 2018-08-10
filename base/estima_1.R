@@ -55,8 +55,9 @@ lm.morantest(mqo,w)
 tests = lm.LMtests(mqo, w, test='all')
 summary(tests)
 
-#Estima com maxima verossimilhanca (LENTO DEMAIS, da pau)
-#mlag = lagsarlm(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w)
+#Estima com maxima verossimilhanca, usando o metodo de decomposical LU (LENTO DEMAIS NO PADRAO eigen)
+mlagmle = lagsarlm(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,quiet=F,method="LU")
+summary(mlagmle)
 #Estima com GMM
 mlag = spreg(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,model='lag')
 summary(mlag)
