@@ -6,6 +6,10 @@ library(sphet)
 shpfname = "/home/gabriel/larissa/dados-emprego/munis2010/clima_munis2010.shp"
 basfname = "/home/gabriel/larissa/dados-emprego/base/merge1008sem_missing.csv"
 
+outshpfname = "/home/gabriel/larissa/dados-emprego/munis2010/clima_munis2010_limpo.shp"
+outbasfname = "/home/gabriel/larissa/dados-emprego/base/merge1008sem_missing_limpo.csv"
+
+
 base = read.csv(basfname)
 #base = subset(base,munic!=697)
 base$pi <- NULL
@@ -19,8 +23,8 @@ shape = subset(inshape,codigo_ibg %in% base$munic)
 #shape$data <-
 
 #Saida
-writeSpatialShape()
-
+writeSpatialShape(shape,outshpfname)
+write.csv(base,outbasfname,row.names = F)
 
 attach(base)
 
