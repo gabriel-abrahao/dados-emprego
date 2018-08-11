@@ -2,6 +2,7 @@ library(spdep)
 library(maptools)
 library(sphet)
 library(lmtest)
+library(plyr)
 library(rgdal) #Se estiver dando problema, trocar os comandos readOGR e writeOGR por readShapePoly e writeShapePoly
 
 #Localizacao da pasta do repositorio, com uma barra no final
@@ -19,7 +20,7 @@ outbasfname = paste0(repofolder,"/base/merge1008sem_missing_limpo.csv")
 #Lendo a base
 base = read.csv(basfname)
 #Removendo a variavel pi e substituindo missings por zero
-base$pi <- NULL
+colnames(base)[colnames(base) == "pi"] = "pia"
 base$monocul[is.na(base$monocul)] <- 0
 base$areaplantada[is.na(base$areaplantada)] <- 0
 base$princultu[is.na(base$princultu)] <- 0
@@ -27,20 +28,22 @@ base$princultu[is.na(base$princultu)] <- 0
 #Lendo o shape
 #inshape = readShapePoly(shpfname)
 inshape = readOGR(shpfname) #Trocar pelo de cima
+
 #Removendo os poligonos de municipios que nao existem na base
 shape = subset(inshape,codigo_ibg %in% base$munic)
-#shape$data <-
 
 #Salva o shape e a base, desnecessario, descomentar se precisar
-##writeSpatialShape(shape,outshpfname)
-#writeOGR(shape,outshpfname,layer=outshpfname,driver="ESRI Shapefile") #Trocar pelo de cima
-#write.csv(base,outbasfname,row.names = F)
+#writeSpatialShape(shape,outshpfname)
+writeOGR(shape,outshpfname,layer=outshpfname,driver="ESRI Shapefile") #Trocar pelo de cima
+write.csv(base,outbasfname,row.names = F)
 
 #Faz as variaveis da base ficarem acessiveis. CUIDADO: Use o detach depois se for mexer na base antes de estiamar de novo. Ou reinicie a sessao.
 attach(base)
 
 #Formula do modelo, a ser usada em todos as estimacoes
+#formula = as.formula("txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp")
 formula = as.formula("txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp")
+
 
 #Estima o mqo
 mqo = lm(formula)
@@ -57,6 +60,7 @@ w<-nb2listw(queen1, style="W", zero.policy=F)
 #Teste de moran nos residuos do modelo
 lm.morantest(mqo,w)
 #moran.test(resid(mqo),w) #Da igual
+moran.test(base$txerna,w)
 
 #Faz os testes de erro e lag
 tests = lm.LMtests(mqo, w, test='all')
