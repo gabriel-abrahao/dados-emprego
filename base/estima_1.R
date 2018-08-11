@@ -39,8 +39,11 @@ shape = subset(inshape,codigo_ibg %in% base$munic)
 #Faz as variaveis da base ficarem acessiveis. CUIDADO: Use o detach depois se for mexer na base antes de estiamar de novo. Ou reinicie a sessao.
 attach(base)
 
+#Formula do modelo, a ser usada em todos as estimacoes
+formula = as.formula("txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp")
+
 #Estima o mqo
-mqo = lm(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp)
+mqo = lm(formula)
 summary(mqo)
 
 #Matriz de vizinhanca queen ordem 1
@@ -60,10 +63,10 @@ tests = lm.LMtests(mqo, w, test='all')
 summary(tests)
 
 #Estima com maxima verossimilhanca, usando o metodo de decomposical LU (LENTO DEMAIS NO PADRAO eigen)
-mlagmle = lagsarlm(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,quiet=F,method="LU")
+mlagmle = lagsarlm(formula,base,w,quiet=F,method="LU")
 summary(mlagmle)
 #Estima com GMM
-mlaggmm = spreg(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,model='lag')
+mlaggmm = spreg(formula,base,w,model='lag')
 summary(mlaggmm)
 
 #Teste de moran nos residuos da saida
