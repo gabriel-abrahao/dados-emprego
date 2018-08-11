@@ -4,13 +4,17 @@ library(sphet)
 library(lmtest)
 library(rgdal) #Se estiver dando problema, trocar os comandos readOGR e writeOGR por readShapePoly e writeShapePoly
 
+#Localizacao da pasta do repositorio, com uma barra no final
+#repofolder = "/home/gabriel/larissa/dados-emprego/"
+repofolder = "C:/Users/laris/Desktop/Artigo/dados-emprego/"
+
 #Nomes do shape e da base
-shpfname = "/home/gabriel/larissa/dados-emprego/munis2010/clima_munis2010.shp"
-basfname = "/home/gabriel/larissa/dados-emprego/base/merge1008sem_missing.csv"
+shpfname = paste0(repofolder,"/munis2010/clima_munis2010.shp")
+basfname = paste0(repofolder,"/base/merge1008sem_missing.csv")
 
 #Shape e base de saida
-outshpfname = "/home/gabriel/larissa/dados-emprego/munis2010/clima_munis2010_limpo.shp"
-outbasfname = "/home/gabriel/larissa/dados-emprego/base/merge1008sem_missing_limpo.csv"
+outshpfname = paste0(repofolder,"/munis2010/clima_munis2010_limpo.shp")
+outbasfname = paste0(repofolder,"/base/merge1008sem_missing_limpo.csv")
 
 #Lendo a base
 base = read.csv(basfname)
@@ -27,10 +31,10 @@ inshape = readOGR(shpfname) #Trocar pelo de cima
 shape = subset(inshape,codigo_ibg %in% base$munic)
 #shape$data <-
 
-#Salva o shape e a base, desnecessario
-#writeSpatialShape(shape,outshpfname)
-writeOGR(shape,outshpfname,layer=outshpfname,driver="ESRI Shapefile") #Trocar pelo de cima
-write.csv(base,outbasfname,row.names = F)
+#Salva o shape e a base, desnecessario, descomentar se precisar
+##writeSpatialShape(shape,outshpfname)
+#writeOGR(shape,outshpfname,layer=outshpfname,driver="ESRI Shapefile") #Trocar pelo de cima
+#write.csv(base,outbasfname,row.names = F)
 
 #Faz as variaveis da base ficarem acessiveis. CUIDADO: Use o detach depois se for mexer na base antes de estiamar de novo. Ou reinicie a sessao.
 attach(base)
@@ -59,10 +63,10 @@ summary(tests)
 mlagmle = lagsarlm(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,quiet=F,method="LU")
 summary(mlagmle)
 #Estima com GMM
-mlag = spreg(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,model='lag')
-summary(mlag)
+mlaggmm = spreg(txerna ~ mediaanosest + txenergia + monocul + poplog + arealog + precclimme + tempclimme + anomaprec + anomatemp,base,w,model='lag')
+summary(mlaggmm)
 
 #Teste de moran nos residuos da saida
-moran.test(resid(mlag),w)
+moran.test(resid(mlaggmm),w)
 
 detach(base)
